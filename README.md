@@ -5,6 +5,8 @@ WEB PROJECT AI PORTAL
 **Engine:** RIKI CORE `0.0.1 Alpha`  
 **Format:** Single-file HTML application
 
+https://riccardobasti.github.io/UNISEFE-PROJECT-AI/
+
 **UNISEFE Project AI** is an experimental AI project builder designed around the principles of **RIKI CORE**. It combines project creation, AI-assisted editing, live preview, code inspection, history, testing and publishing inside a single standalone HTML file.
 
 The application is intentionally minimal in infrastructure: no traditional database is required, no installation backend is required for the local DEMO workflow, and projects are represented through a canonical RIKI-style state based on permanent identities and dynamic values.
