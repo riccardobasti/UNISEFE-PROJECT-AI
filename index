@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>UNISEFE Project AI — 0.00000000.000000000.1 Alpha-</title>
+<style>
+:root{--line:#d7d7d7;--text:#111;--muted:#777;--bg:#fff;--soft:#f6f6f6}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font:13px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);background:var(--bg)}
+button,input,textarea{font:inherit;color:inherit}button{cursor:pointer}.hidden{display:none!important}
+
+/* RIKI / ITALFABER shell — barra laterale fissa, stessa palette */
+.public{min-height:100%;background:#fff}
+.public header{height:44px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 10px}
+.brand,.sidebrand{font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.btn{height:30px;border:1px solid #cfcfcf;background:#fff;color:#111;border-radius:2px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:#111;background:#f7f7f7}.btn.primary{background:#111;color:#fff;border-color:#111}
+main.public-main{max-width:1180px;margin:auto;padding:18px}
+main.public-main>h1{font-size:18px;margin:0 0 14px;font-weight:650}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.card{border:1px solid var(--line);background:#fff;border-radius:2px;padding:13px;text-align:left;min-height:116px;display:flex;flex-direction:column;box-shadow:none}
+.card:hover{border-color:#111}.card h2{margin:0 0 5px;font-size:14px}.card p{margin:0;color:var(--muted)}.card small{margin-top:auto;padding-top:12px;color:var(--muted)}
+.viewer{position:fixed;inset:0;background:#fff;z-index:30;display:none;flex-direction:column}.viewer.open{display:flex}
+.viewerbar{height:44px;flex:0 0 44px;background:#111;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid #111}
+.viewerbar .btn{background:#fff;color:#111;border-color:#fff}.viewer iframe{flex:1;width:100%;border:0;background:#fff}
+.admin{position:fixed;inset:0;z-index:20;background:#fff;display:block}
+.sidebar{position:fixed;z-index:46;left:0;top:0;bottom:0;width:44px;border-right:1px solid var(--line);background:#fff;overflow:hidden;transition:width .16s ease}
+.sidebar.open{width:220px}
+.sidebrand{height:44px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:flex-start;gap:8px;padding:0 7px;font-size:12px;white-space:nowrap;overflow:hidden}
+.sidebrand span{opacity:0;transition:opacity .08s}.sidebar.open .sidebrand span{opacity:1}
+.sidebrand button{order:-1;flex:0 0 30px;width:30px;height:30px;border:1px solid #cfcfcf;background:#fff;border-radius:2px;font-size:0;line-height:1;padding:0;position:relative}
+.sidebrand button:before{content:'☰';font-size:15px}.sidebar.open .sidebrand button:before{content:'×';font-size:18px}
+.sidebrand button:hover{border-color:#111;background:#f7f7f7}
+.menu-stage{position:relative;height:calc(100% - 44px);overflow:hidden}
+.menu-page{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff;transition:transform .16s ease}
+.menu-root{transform:translateX(0)}.menu-subpage{transform:translateX(100%)}
+.sidebar.sub-open .menu-root{transform:translateX(-100%)}.sidebar.sub-open .menu-subpage{transform:translateX(0)}
+.nav{padding:6px 5px}.nav button{width:100%;height:34px;border:1px solid transparent;border-radius:2px;background:#fff;padding:0 9px;text-align:left;color:#555;display:flex;align-items:center;justify-content:space-between;gap:8px;white-space:nowrap;overflow:hidden}
+.nav button:hover{border-color:#cfcfcf;color:#111;background:#f7f7f7}.nav button.active{background:#111;color:#fff;border-color:#111}
+.sidebar:not(.open) .nav button{width:34px;padding:0;justify-content:center;color:transparent;position:relative}
+.sidebar:not(.open) .nav button span{display:none}
+.sidebar:not(.open) .nav button:before{color:#111;font-size:13px;font-weight:700}
+.sidebar:not(.open) #navProjects:before{content:'P'}.sidebar:not(.open) #navProject:before{content:'R'}.sidebar:not(.open) #navSettings:before{content:'S'}.sidebar:not(.open) #navSite:before{content:'W'}
+.sidebar:not(.open) .nav button.active:before{color:#fff}
+.nav .sep{height:1px;background:var(--line);margin:6px 1px}.menu-arrow{font-size:16px;opacity:.55}.menu-back{font-weight:600}
+.project-menu-title{padding:10px 15px 4px;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidefoot{margin-top:auto;padding:9px 10px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;white-space:nowrap}.sidebar:not(.open) .sidefoot{display:none}
+.workspace{position:absolute;inset:0 0 0 44px;min-width:0;display:flex;flex-direction:column;background:#fff;transition:left .16s ease}.admin.menu-expanded .workspace{left:220px}
+.topbar{height:44px;flex:0 0 44px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 8px;background:#fff}
+.topbar strong{font-size:13px;font-weight:650}.content{flex:1;min-height:0;overflow:auto}.projects{padding:14px}
+.project{height:100%;display:flex;flex-direction:column;min-height:0}.tabs{height:38px;flex:0 0 38px;border-bottom:1px solid var(--line);display:flex;padding:0 6px;overflow-x:auto;overflow-y:hidden;background:#fff}.tabs button{height:38px;flex:0 0 auto;border:0;background:transparent;padding:0 11px;color:#777;border-bottom:2px solid transparent;font-size:12px}.tabs button:hover{color:#111}.tabs button.active{color:#111;border-bottom-color:#111}.view{flex:1;min-height:0}
+.chat{height:100%;display:flex;flex-direction:column;max-width:920px;margin:auto}.messages{flex:1;overflow:auto;padding:14px}.msg{margin:0 0 12px;white-space:pre-wrap}.msg.user{margin-left:auto;max-width:86%;background:#111;color:#fff;border-radius:2px;padding:9px 11px}
+.composer{border-top:1px solid var(--line);padding:8px;background:#fff}.composer textarea{width:100%;min-height:78px;resize:none;border:1px solid #ccc;border-radius:2px;padding:9px;outline:none}.composer textarea:focus{border-color:#111}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px}.status{font-size:11px;color:var(--muted)}
+.preview{height:100%;display:flex;flex-direction:column}.previewbar,.codebar{height:36px;flex:0 0 36px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 6px;background:var(--soft)}
+.preview iframe{flex:1;width:100%;border:0;background:#fff}.code{height:100%;display:flex;flex-direction:column}.code textarea{flex:1;width:100%;resize:none;border:0;outline:0;padding:12px;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff}
+.settings{max-width:760px;padding:14px}.settings h1{font-size:18px;margin:0}.group{border:1px solid var(--line);border-radius:2px;padding:13px;margin-top:10px;background:#fff}.field{margin-bottom:11px}.field label{display:block;margin-bottom:5px;font-size:12px}.field input,.field select{width:100%;height:34px;padding:0 9px;border:1px solid #ccc;border-radius:2px;outline:none;background:#fff;color:#111}.field input:focus,.field select:focus{border-color:#111}
+.modal-wrap{position:fixed;inset:0;background:#0006;z-index:60;display:flex;align-items:center;justify-content:center;padding:18px}.modal{width:min(400px,100%);background:#fff;border:1px solid var(--line);border-radius:2px;padding:14px;box-shadow:0 12px 40px #0002}.modal h3{margin:0 0 12px;font-size:15px}.modal input{width:100%;height:34px;padding:0 9px;border:1px solid #ccc;border-radius:2px;outline:none}.modal input:focus{border-color:#111}.modal-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}
+
+@media(max-width:760px){
+ .sidebar{width:44px}.sidebar.open{width:min(82vw,220px)}
+ .workspace{left:44px}.admin.menu-expanded .workspace{left:44px}
+ .sidebar.open{box-shadow:10px 0 24px #0002}
+ .projects{padding:8px}.grid{grid-template-columns:1fr}.tabs{padding:0 3px}.topbar{padding:0 6px}.topbar>div:last-child>.btn{display:none}.public header{padding:0 7px}.public header .btn{font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<section class="public" id="public">
+<header>
+  <div class="brand">UNISEFE</div>
+  <button class="btn" id="adminBtn">admin</button>
+</header>
+<main class="public-main"><h1>projects</h1><div id="publicGrid"></div></main>
+</section>
+
+<div class="viewer" id="viewer">
+  <div class="viewerbar"><strong id="viewerTitle">project</strong><button class="btn" id="closeViewer">close</button></div>
+  <iframe id="viewerFrame"></iframe>
+</div>
+
+<section class="admin hidden" id="admin">
+  <aside class="sidebar" id="sidebar" aria-label="RIKI menu">
+    <div class="sidebrand"><span>PROJECT AI</span><button id="menuClose" aria-label="toggle menu"></button></div>
+    <div class="menu-stage">
+      <div class="menu-page menu-root">
+        <div class="nav">
+          <button id="navProjects" class="active"><span>projects</span></button>
+          <button id="navProject" class="hidden"><span>project</span><span class="menu-arrow">›</span></button>
+          <button id="navSettings"><span>settings</span></button>
+          <div class="sep"></div>
+          <button id="navSite"><span>site</span></button>
+        </div>
+        <div class="sidefoot">mono user · canonical space</div>
+      </div>
+      <div class="menu-page menu-subpage">
+        <div class="nav">
+          <button id="projectMenuBack" class="menu-back"><span>‹ &nbsp;back</span></button>
+          <div class="project-menu-title" id="projectMenuTitle">project</div>
+          <div class="sep"></div>
+          <button data-side-tab="chat"><span>chat</span></button>
+          <button data-side-tab="preview"><span>preview</span></button>
+          <button data-side-tab="code"><span>code</span></button>
+          <button data-side-tab="history"><span>history</span></button>
+          <button data-side-tab="publish"><span>publish</span></button>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="workspace">
+    <div class="topbar">
+      <strong id="title">projects</strong>
+      <div id="actions"></div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</section>
+
+
+<div class="modal-wrap hidden" id="newProjectModal">
+  <div class="modal">
+    <h3>new project</h3>
+    <input id="newProjectName" placeholder="project name">
+    <div class="modal-actions">
+      <button class="btn" id="cancelNewProject">cancel</button>
+      <button class="btn primary" id="confirmNewProject">create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BUILD="0.00000000.000000000.1 Alpha--torture-tested";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+const RIKI={
+  BYTE:{name:"RIKI_SPACE_MONO",constitution:"RIKI_CORE_0.0.1_ALPHA__BYTE_PERMANENT__VALUE_DYNAMIC__BIT_DERIVED__CHAINS_PERMANENT"},
+  VALORE:{
+    currentView:"projects",
+    currentProject:null,
+    settings:{provider:"demo",openrouterModel:"openai/gpt-5.6-luna",openaiModel:"gpt-5.6-luna",appName:"RIKI Space",siteUrl:""},
+    projects:{},
+    audit:[]
+  },
+  BIT:0,
+  CATENE:[]
+};
+
+/* Session-only secrets: never canonical, never exported, never persisted. */
+const SESSION_SECRETS={openrouterKey:"",openaiKey:""};
+
+/* Technical audit only. It is not a RIKI CHAIN and never determines BIT. */
+function commit(op,project=null,detail=""){
+  RIKI.VALORE.audit ||= [];
+  RIKI.VALORE.audit.push({t:Date.now(),op,project,detail:String(detail||"")});
+  if(RIKI.VALORE.audit.length>400) RIKI.VALORE.audit.shift();
+}
+
+function cloneJSON(x){return JSON.parse(JSON.stringify(x))}
+
+const BYTE_RE=/^[A-Za-z_][A-Za-z0-9_]*$/;
+function isSafeByteName(x){return typeof x==="string" && BYTE_RE.test(x)}
+function safeCalc(expr,vars){
+  expr=String(expr||"").trim();
+  if(!expr) throw new Error("empty expression");
+  const names=Object.keys(vars);
+  const token=/[A-Za-z_][A-Za-z0-9_]*|(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+\-]?\d+)?|\*\*|[+\-*/%()]|\s+/gy;
+  let i=0,m;
+  while(i<expr.length){
+    token.lastIndex=i; m=token.exec(expr);
+    if(!m || m.index!==i) throw new Error("unsafe expression token");
+    const t=m[0];
+    if(/^[A-Za-z_]/.test(t) && !names.includes(t)) throw new Error("unknown expression symbol: "+t);
+    i=token.lastIndex;
+  }
+  const out=Function(...names,'"use strict";return ('+expr+')')(...names.map(n=>vars[n]));
+  const n=Number(out);
+  if(!Number.isFinite(n)) throw new Error("expression result is not finite");
+  return n;
+}
+function nearlyEqual(a,b){
+  a=Number(a); b=Number(b);
+  return Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<=1e-9*Math.max(1,Math.abs(a),Math.abs(b));
+}
+
+function normalizeApp(app){
+  if(!app || typeof app!=="object") return app;
+  app.VALORE ||= {};
+  app.VALORE.canvas ||= {};
+  app.VALORE.nodes ||= [];
+  // compatibility only: migrate legacy imported relation arrays into permanent CATENE once
+  if(Array.isArray(app.VALORE.relations) && app.VALORE.relations.length){
+    app.CATENE ||= [];
+    for(const r of app.VALORE.relations){
+      if(!r?.BYTE || app.CATENE.some(c=>c?.BYTE===r.BYTE)) continue;
+      app.CATENE.push({BYTE:r.BYTE,DOMAIN:r?.VALORE?.trigger||"app",VALORE:cloneJSON(r.VALORE||{})});
+    }
+  }
+  delete app.VALORE.relations;
+  app.CATENE ||= [];
+  for(const n of app.VALORE.nodes){
+    if(n && typeof n==="object") n.BIT=0; // derived below, never authored
+  }
+  app.BIT=0;
+  return app;
+}
+
+function nodeMap(app){
+  return new Map((app?.VALORE?.nodes||[]).map(n=>[n?.BYTE,n]).filter(x=>x[0]));
+}
+
+function numericNodeValue(n){
+  const v=n?.VALORE||{};
+  if(v.value!==undefined && v.value!==""){
+    const x=Number(v.value); if(Number.isFinite(x)) return x;
+  }
+  if(v.text!==undefined){
+    const x=Number(String(v.text).replace(/[^0-9eE+\-.]/g,""));
+    if(Number.isFinite(x)) return x;
+  }
+  return NaN;
+}
+
+function evaluateChainExpected(app,c){
+  const v=c?.VALORE||{}, map=nodeMap(app);
+  if(v.kind!=="calc" || !Array.isArray(v.inputs) || !v.inputs.length || !v.output || typeof v.expr!=="string") return null;
+  const out=map.get(v.output);
+  if(!out || !v.inputs.every(b=>map.has(b))) return null;
+  const vars={};
+  for(const b of v.inputs){
+    const x=numericNodeValue(map.get(b));
+    if(!Number.isFinite(x)) return null;
+    vars[b]=x;
+  }
+  try{
+    let x=safeCalc(v.expr,vars);
+    if(v.round!=null) x=Number(x.toFixed(Math.max(0,Math.min(12,Number(v.round)||0))));
+    return {x,output:v.output,property:v.property,prefix:v.prefix||"",suffix:v.suffix||""};
+  }catch{return null}
+}
+
+function applyUniversalOperator(app){
+  normalizeApp(app);
+  // Simultaneous fixed-point updates: every pass reads one state, then commits all outputs together.
+  // BYTE identities and CATENE definitions are never changed.
+  for(let pass=0;pass<64;pass++){
+    const proposals=new Map(), conflicts=new Set();
+    for(const c of app.CATENE||[]){
+      const e=evaluateChainExpected(app,c);
+      if(!e) continue;
+      if(proposals.has(e.output) && !nearlyEqual(proposals.get(e.output).x,e.x)) conflicts.add(e.output);
+      else if(!proposals.has(e.output)) proposals.set(e.output,e);
+    }
+    let changed=false;
+    const map=nodeMap(app);
+    for(const [outByte,e] of proposals){
+      if(conflicts.has(outByte)) continue;
+      const out=map.get(outByte); if(!out) continue;
+      out.VALORE ||= {};
+      const useValue=e.property==="value" || ("value" in out.VALORE && e.property!=="text");
+      if(useValue){
+        const prev=Number(out.VALORE.value);
+        if(!nearlyEqual(prev,e.x)){out.VALORE.value=e.x;changed=true}
+      }else{
+        const next=e.prefix+e.x+e.suffix;
+        if(String(out.VALORE.text??"")!==next){out.VALORE.text=next;changed=true}
+      }
+    }
+    if(!changed) break;
+  }
+}
+
+function chainTruth(app,c){
+  if(!c?.DOMAIN || !String(c.DOMAIN).trim()) return false;
+  const e=evaluateChainExpected(app,c);
+  if(!e) return false;
+  const actual=numericNodeValue(nodeMap(app).get(e.output));
+  return nearlyEqual(e.x,actual);
+}
+
+function validateRikiApp(app,{derive=true}={}){
+  const errors=[];
+  normalizeApp(app);
+  if(!app || typeof app!=="object") return {ok:false,errors:["rikiApp missing"]};
+  if(!isSafeByteName(app.BYTE)) errors.push("rikiApp BYTE missing or unsafe");
+  if(!app.VALORE || typeof app.VALORE!=="object") errors.push("VALORE missing");
+  if(!Array.isArray(app.VALORE?.nodes)) errors.push("VALORE.nodes must be an array");
+  if(!Array.isArray(app.CATENE)) errors.push("CATENE must be an array");
+
+  const bytes=new Set();
+  for(const [i,n] of (app.VALORE?.nodes||[]).entries()){
+    if(!n || typeof n!=="object"){errors.push(`node ${i} invalid`);continue}
+    if(!isSafeByteName(n.BYTE)) errors.push(`node ${i} BYTE missing or unsafe`);
+    else{
+      if(bytes.has(n.BYTE)) errors.push(`duplicate BYTE: ${n.BYTE}`);
+      bytes.add(n.BYTE);
+    }
+    if(!n.VALORE || typeof n.VALORE!=="object") errors.push(`BYTE ${n.BYTE||i} VALORE missing`);
+  }
+  for(const n of (app.VALORE?.nodes||[])){
+    for(const child of (n?.VALORE?.children||[])) if(!bytes.has(child)) errors.push(`child BYTE not found: ${child}`);
+  }
+
+  const chainBytes=new Set();
+  for(const [i,c] of (app.CATENE||[]).entries()){
+    if(!c || typeof c!=="object"){errors.push(`CHAIN ${i} invalid`);continue}
+    if(!isSafeByteName(c.BYTE)) errors.push(`CHAIN ${i} BYTE missing or unsafe`);
+    else{
+      if(chainBytes.has(c.BYTE)) errors.push(`duplicate CHAIN BYTE: ${c.BYTE}`);
+      chainBytes.add(c.BYTE);
+    }
+    if(typeof c.DOMAIN!=="string" || !c.DOMAIN.trim()) errors.push(`CHAIN ${c.BYTE||i} domain undefined`);
+    if(!c.VALORE || typeof c.VALORE!=="object"){errors.push(`CHAIN ${c.BYTE||i} VALORE missing`);continue}
+    const v=c.VALORE;
+    if(v.kind!=="calc") errors.push(`CHAIN ${c.BYTE||i} kind must be calc equality`);
+    if(v.kind==="calc"){
+      if(!Array.isArray(v.inputs) || !v.inputs.length) errors.push(`CHAIN ${c.BYTE||i} inputs missing`);
+      for(const b of (v.inputs||[])) if(!bytes.has(b)) errors.push(`CHAIN input BYTE not found: ${b}`);
+      if(!v.output || !bytes.has(v.output)) errors.push(`CHAIN output BYTE not found: ${v.output||""}`);
+      if(typeof v.expr!=="string" || !v.expr.trim()) errors.push(`CHAIN ${c.BYTE||i} expression missing`);
+      else {
+        const vars=Object.fromEntries((v.inputs||[]).filter(isSafeByteName).map(b=>[b,1]));
+        try{safeCalc(v.expr,vars)}catch(e){errors.push(`CHAIN ${c.BYTE||i} expression unsafe/invalid: ${e.message}`)}
+      }
+    }
+  }
+
+  // hierarchy may change as a VALUE, but it cannot form a cycle
+  const graph=new Map((app.VALORE?.nodes||[]).map(n=>[n.BYTE,n.VALORE?.children||[]]));
+  const visiting=new Set(),visited=new Set();
+  function dfs(b){
+    if(visiting.has(b)){errors.push(`node cycle detected at: ${b}`);return}
+    if(visited.has(b)) return;
+    visiting.add(b); for(const c of graph.get(b)||[]) dfs(c); visiting.delete(b); visited.add(b);
+  }
+  for(const b of graph.keys()) dfs(b);
+
+  if(derive){
+    applyUniversalOperator(app);
+    const chainValidity=new Map();
+    for(const c of app.CATENE||[]){
+      const ok=chainTruth(app,c);
+      chainValidity.set(c.BYTE,ok);
+      c.BIT=ok?1:0; // strictly derived from the equality after U has acted
+    }
+    for(const n of app.VALORE?.nodes||[]){
+      const connected=(app.CATENE||[]).filter(c=>{
+        const v=c.VALORE||{};return (v.inputs||[]).includes(n.BYTE)||v.output===n.BYTE;
+      });
+      // RIKI CORE: no connected CHAIN => BIT 0.
+      n.BIT=connected.length>0 && connected.every(c=>chainValidity.get(c.BYTE)===true) ? 1 : 0;
+    }
+    // The app can be structurally valid while BIT=0; BIT means its declared chain network is closed.
+    app.BIT=errors.length===0 && (app.CATENE||[]).length>0 && (app.CATENE||[]).every(c=>c.BIT===1) ? 1 : 0;
+  }
+  return {ok:errors.length===0,errors,bit:app.BIT};
+}
+
+function immutableSignature(app){
+  normalizeApp(app);
+  return {
+    BYTE:app.BYTE,
+    nodeBytes:(app.VALORE.nodes||[]).map(n=>n.BYTE),
+    chains:(app.CATENE||[]).map(c=>({BYTE:c.BYTE,DOMAIN:c.DOMAIN,VALORE:c.VALORE}))
+  };
+}
+
+function validatePermanentMutation(before,after){
+  normalizeApp(before); normalizeApp(after);
+  const errors=[];
+  if(after.BYTE!==before.BYTE) errors.push("app BYTE is permanent and cannot change");
+  const oldNodes=new Map((before.VALORE.nodes||[]).map(n=>[n.BYTE,n]));
+  const newNodes=new Map((after.VALORE.nodes||[]).map(n=>[n.BYTE,n]));
+  for(const b of oldNodes.keys()) if(!newNodes.has(b)) errors.push(`BYTE ${b} is permanent and cannot be deleted or renamed`);
+  const oldChains=new Map((before.CATENE||[]).map(c=>[c.BYTE,c]));
+  const newChains=new Map((after.CATENE||[]).map(c=>[c.BYTE,c]));
+  for(const [b,c] of oldChains){
+    if(!newChains.has(b)) errors.push(`CHAIN ${b} is permanent and cannot be deleted`);
+    else if(JSON.stringify({DOMAIN:c.DOMAIN,VALORE:c.VALORE})!==JSON.stringify({DOMAIN:newChains.get(b).DOMAIN,VALORE:newChains.get(b).VALORE}))
+      errors.push(`CHAIN ${b} is permanent and cannot be modified`);
+  }
+  return {ok:errors.length===0,errors};
+}
+
+function applyRikiTransform(app,ops){
+  const next=cloneJSON(app); normalizeApp(next);
+  const nodes=next.VALORE.nodes, chains=next.CATENE;
+  const nodeIndex=b=>nodes.findIndex(n=>n?.BYTE===b);
+  const chainIndex=b=>chains.findIndex(c=>c?.BYTE===b);
+
+  for(const op of ops||[]){
+    if(!op || typeof op!=="object" || typeof op.op!=="string") throw new Error("invalid RIKI operation");
+    if(op.op==="setTitle") next.VALORE.title=String(op.value??"");
+    else if(op.op==="setCanvas") next.VALORE.canvas={...next.VALORE.canvas,...cloneJSON(op.value||{})};
+    else if(op.op==="declareByte"){
+      const n=cloneJSON(op.node);
+      if(!isSafeByteName(n?.BYTE)) throw new Error("declareByte requires a safe BYTE name");
+      if(nodeIndex(n.BYTE)>=0) throw new Error("BYTE already exists permanently: "+n.BYTE);
+      n.VALORE ||= {}; n.BIT=0; nodes.push(n);
+    }
+    else if(op.op==="setValue"){
+      const i=nodeIndex(op.BYTE);
+      if(i<0) throw new Error("BYTE not found: "+op.BYTE);
+      nodes[i].VALORE={...(nodes[i].VALORE||{}),...cloneJSON(op.value||{})};
+    }
+    else if(op.op==="declareChain"){
+      const c=cloneJSON(op.chain);
+      if(!isSafeByteName(c?.BYTE)) throw new Error("declareChain requires a safe BYTE name");
+      if(chainIndex(c.BYTE)>=0) throw new Error("CHAIN already exists permanently: "+c.BYTE);
+      c.DOMAIN=String(c.DOMAIN||c?.VALORE?.trigger||"app"); c.BIT=0; c.VALORE ||= {}; chains.push(c);
+    }
+    else throw new Error("unsupported by RIKI CORE 0.0.1 Alpha: "+op.op);
+  }
+  const permanence=validatePermanentMutation(app,next);
+  if(!permanence.ok) throw new Error(permanence.errors.join(" · "));
+  const check=validateRikiApp(next,{derive:true});
+  if(!check.ok) throw new Error(check.errors.join(" · "));
+  return next;
+}
+
+function validateSpace(space){
+  const errors=[];
+  if(!space || typeof space!=="object") return {ok:false,errors:["Space missing"]};
+  if(!space.BYTE?.name) errors.push("Space BYTE.name missing");
+  if(!space.VALORE?.projects || typeof space.VALORE.projects!=="object") errors.push("projects missing");
+  for(const [id,p] of Object.entries(space.VALORE?.projects||{})){
+    if(!p?.BYTE?.name) errors.push(`project ${id} BYTE missing`);
+    const check=validateRikiApp(p.VALORE?.rikiApp,{derive:true});
+    p.BIT=check.ok && p.VALORE.rikiApp.BIT===1 ? 1 : 0;
+    if(!check.ok) errors.push(...check.errors.map(e=>`${id}: ${e}`));
+  }
+  space.BIT=errors.length===0 && Object.values(space.VALORE?.projects||{}).every(p=>p.BIT===1||p.VALORE?.archived) ? 1 : 0;
+  return {ok:errors.length===0,errors,bit:space.BIT};
+}
+
+function exportSpaceObject(){
+  const check=validateSpace(RIKI);
+  if(!check.ok) throw new Error(check.errors.join("\n"));
+  commit("space_backup_export");
+  const copy=structuredClone(RIKI);
+  // Never place an API secret in a backup file.
+  if(copy.VALORE?.settings){ delete copy.VALORE.settings.openrouterKey; delete copy.VALORE.settings.openaiKey; }
+  return copy;
+}
+
+function importSpaceObject(obj){
+  const copy=structuredClone(obj);
+  copy.VALORE ||= {}; copy.VALORE.audit ||= [];
+  for(const p of Object.values(copy.VALORE.projects||{})) normalizeApp(p.VALORE?.rikiApp);
+  const check=validateSpace(copy);
+  if(!check.ok) throw new Error(check.errors.join("\n"));
+  RIKI.BYTE=copy.BYTE; RIKI.VALORE=copy.VALORE; RIKI.BIT=copy.BIT; RIKI.CATENE=copy.CATENE||[];
+  commit("space_import"); renderPublic(); if(!$("#admin").classList.contains("hidden")) renderAdmin();
+}
+
+async function saveSpaceFile(){
+  try{
+    const data=JSON.stringify(exportSpaceObject(),null,2), blob=new Blob([data],{type:"application/json"});
+    if(window.showSaveFilePicker){
+      const handle=await showSaveFilePicker({suggestedName:"riki-space-backup.riki",types:[{description:"RIKI Space",accept:{"application/json":[".riki",".json"]}}]});
+      const writable=await handle.createWritable(); await writable.write(blob); await writable.close();
+    }else{
+      const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="riki-space-backup.riki"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    }
+  }catch(e){if(e?.name!=="AbortError") alert("Backup error:\n"+e.message)}
+}
+
+function makeProject(name,prompt=""){
+  const id="p_"+((globalThis.crypto&&typeof crypto.randomUUID==="function")?crypto.randomUUID():(Date.now().toString(36)+"_"+Math.random().toString(36).slice(2)+"_"+Math.random().toString(36).slice(2)));
+  RIKI.VALORE.projects[id]={
+    BYTE:{name,id},
+    VALORE:{description:prompt,messages:[],ui:{tab:"chat",codeMode:"riki"},history:[],archived:false,
+      rikiApp:{BYTE:"APP_"+id.replace(/[^A-Za-z0-9_]/g,"_"),VALORE:{title:name,canvas:{background:"#fff",color:"#111",maxWidth:1100,padding:24,gap:16},nodes:[{BYTE:"root",VALORE:{tag:"h1",text:name,style:{fontSize:"34px",margin:"0"}},BIT:0}]},CATENE:[],BIT:0},updatedAt:Date.now()},
+    BIT:0,CATENE:[]
+  };
+  validateRikiApp(RIKI.VALORE.projects[id].VALORE.rikiApp,{derive:true});
+  RIKI.VALORE.projects[id].BIT=RIKI.VALORE.projects[id].VALORE.rikiApp.BIT;
+  commit("project_declare",id); return id;
+}
+function project(id){return RIKI.VALORE.projects[id]}
+
+function changedBytes(before,after){
+  const a=new Map((before?.VALORE?.nodes||[]).map(n=>[n.BYTE,n.VALORE]));
+  const b=new Map((after?.VALORE?.nodes||[]).map(n=>[n.BYTE,n.VALORE]));
+  const out=[];
+  for(const [k,v] of b) if(!a.has(k) || JSON.stringify(a.get(k))!==JSON.stringify(v)) out.push(k);
+  return out;
+}
+function recordHistory(p,next,source){
+  normalizeApp(p.VALORE.rikiApp); normalizeApp(next);
+  const permanence=validatePermanentMutation(p.VALORE.rikiApp,next);
+  if(!permanence.ok) throw new Error(permanence.errors.join(" · "));
+  const changed=changedBytes(p.VALORE.rikiApp,next);
+  p.VALORE.rikiApp=cloneJSON(next);
+  validateRikiApp(p.VALORE.rikiApp,{derive:true});
+  p.BIT=p.VALORE.rikiApp.BIT;
+  p.VALORE.history ||= [];
+  p.VALORE.history.push({t:Date.now(),source,changed,declaredBytes:(next.VALORE.nodes||[]).length,chains:(next.CATENE||[]).length});
+  if(p.VALORE.history.length>200) p.VALORE.history.shift();
+  p.VALORE.updatedAt=Date.now();
+}
+function ensureHistory(p){p.VALORE.history ||= []}
+
+const SAFE_TAGS=new Set("main section article header footer nav div span h1 h2 h3 h4 h5 h6 p small strong em button input label textarea select option ul ol li a table thead tbody tr th td hr br".split(" "));
+const SAFE_ATTRS=new Set("type placeholder min max step name role href target rel disabled checked selected aria-label aria-current aria-describedby title autocomplete inputmode pattern".split(" "));
+function safeTagName(t){t=String(t||"div").toLowerCase();return SAFE_TAGS.has(t)?t:"div"}
+function safeAttrValue(k,v){
+  k=String(k||"").toLowerCase(); v=String(v??"");
+  if(k.startsWith("aria-")) return v;
+  if(!SAFE_ATTRS.has(k)) return null;
+  if(k==="href"){const x=v.trim(); if(!/^(?:https?:|mailto:|tel:|#|\/)/i.test(x)) return "#"}
+  if(k==="target" && !["_blank","_self"].includes(v)) return "_self";
+  return v;
+}
+function safeStyleObject(o){
+  const out={};
+  for(const [k,v0] of Object.entries(o||{})){
+    if(!/^[A-Za-z][A-Za-z0-9]*$/.test(k)) continue;
+    const v=String(v0??"");
+    if(/[{}<>]|url\s*\(|expression\s*\(|@import|javascript:/i.test(v)) continue;
+    out[k]=v;
+  }
+  return out;
+}
+
+function appToHTML(value){
+  const app=value?.rikiApp;
+  if(!app)return "<!doctype html><html><body></body></html>"; normalizeApp(app); validateRikiApp(app,{derive:true});
+  const A=app.VALORE||{};
+  const st=o=>Object.entries(safeStyleObject(o)).map(([k,v])=>`${k.replace(/[A-Z]/g,m=>"-"+m.toLowerCase())}:${v}`).join(";");
+  const nodes=(A.nodes||[]), map=Object.fromEntries(nodes.map(n=>[n.BYTE,n]));
+  function renderNode(n){
+    const v=n.VALORE||{},tag=safeTagName(v.tag||"div");
+    const attrs=Object.entries(v.attrs||{}).map(([k,val])=>[k,safeAttrValue(k,val)]).filter(([,val])=>val!==null).map(([k,val])=>` ${String(k).toLowerCase()}="${esc(val)}"`).join("");
+    const children=(v.children||[]).map(id=>map[id]).filter(Boolean).map(renderNode).join("");
+    const raw=esc(v.text||"");
+    const val=(tag==="input"&&v.value!=null)?` value="${esc(v.value)}"`:"";
+    const voidTag=tag==="input"||tag==="hr"||tag==="br";
+    return `<${tag} data-riki-byte="${esc(n.BYTE)}"${attrs}${val}${v.style?` style="${esc(st(v.style))}"`:""}>${voidTag?"":raw+children}${voidTag?"":`</${tag}>`}`;
+  }
+  const childIds=new Set(nodes.flatMap(n=>n.VALORE?.children||[]));
+  const roots=nodes.filter(n=>!childIds.has(n.BYTE));
+  const C=A.canvas||{},rels=JSON.stringify(app.CATENE||[]).replace(/</g,"\\u003c");
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(A.title||app.BYTE)}</title><style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,sans-serif}body{background:${C.background||"#fff"};color:${C.color||"#111"}}
+#riki-root{max-width:${Number(C.maxWidth||1100)}px;margin:auto;padding:${Number(C.padding||24)}px;display:flex;flex-direction:column;gap:${Number(C.gap||16)}px}
+button{cursor:pointer}input,textarea,select{font:inherit}@media(max-width:640px){#riki-root{padding:14px}}
+</style></head><body><div id="riki-root">${roots.map(renderNode).join("")}</div><script>
+const REL=${rels};const q=b=>document.querySelector('[data-riki-byte="'+CSS.escape(b)+'"]');
+function read(b){const e=q(b);if(!e)return NaN;const raw=('value'in e)?e.value:e.textContent;const n=Number(String(raw).replace(/[^0-9eE+\\-.]/g,""));return Number.isFinite(n)?n:NaN}
+function write(b,v,p){const e=q(b);if(!e)return;if(p==="value"&&'value'in e)e.value=v;else e.textContent=v}
+function calc(expr,vars){expr=String(expr||"").trim();const names=Object.keys(vars),re=/[A-Za-z_][A-Za-z0-9_]*|(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+\\-]?\\d+)?|\\*\\*|[+\\-*/%()]|\\s+/gy;let i=0,m;while(i<expr.length){re.lastIndex=i;m=re.exec(expr);if(!m||m.index!==i)throw 0;const t=m[0];if(/^[A-Za-z_]/.test(t)&&!names.includes(t))throw 0;i=re.lastIndex}const x=Function(...names,'"use strict";return ('+expr+')')(...names.map(n=>vars[n]));if(!Number.isFinite(Number(x)))throw 0;return Number(x)}
+function apply(r){const v=r.VALORE||{};if(v.kind!=="calc")return;const vars={};for(const b of(v.inputs||[])){const n=read(b);if(!Number.isFinite(n))return;vars[b]=n}try{let x=calc(v.expr,vars);if(v.round!=null)x=Number(x.toFixed(Math.max(0,Math.min(12,Number(v.round)||0))));write(v.output,(v.prefix||"")+x+(v.suffix||""),v.property)}catch(e){}}
+function all(){REL.forEach(apply)}document.addEventListener("input",all);document.addEventListener("change",all);all();
+<\/script></body></html>`;
+}
+
+function seed(){
+  if(Object.keys(RIKI.VALORE.projects).length)return;
+  const a=makeProject("steel estimate","Technical steel weight and cost estimator");
+  project(a).VALORE.rikiApp.VALORE={
+    title:"Steel estimate",canvas:{background:"#f4f4f4",color:"#111",maxWidth:820,padding:22,gap:14},
+    nodes:[
+      {BYTE:"title",VALORE:{tag:"h1",text:"Steel estimate",style:{fontSize:"36px",margin:"0"}}},
+      {BYTE:"form",VALORE:{tag:"section",style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px",background:"#fff",padding:"18px",border:"1px solid #ddd",borderRadius:"14px"},children:["length","kgm","qty","price"]}},
+      {BYTE:"length",VALORE:{tag:"input",value:6,attrs:{type:"number",placeholder:"length m"},style:{padding:"12px"}}},
+      {BYTE:"kgm",VALORE:{tag:"input",value:25.4,attrs:{type:"number",placeholder:"kg/m"},style:{padding:"12px"}}},
+      {BYTE:"qty",VALORE:{tag:"input",value:12,attrs:{type:"number",placeholder:"quantity"},style:{padding:"12px"}}},
+      {BYTE:"price",VALORE:{tag:"input",value:1.35,attrs:{type:"number",placeholder:"€/kg"},style:{padding:"12px"}}},
+      {BYTE:"weight",VALORE:{tag:"div",text:"0 kg",style:{fontSize:"30px",fontWeight:"700",background:"#111",color:"#fff",padding:"20px",borderRadius:"12px"}}},
+      {BYTE:"cost",VALORE:{tag:"div",text:"€ 0",style:{fontSize:"30px",fontWeight:"700",background:"#fff",padding:"20px",border:"1px solid #ddd",borderRadius:"12px"}}}
+    ],
+    };
+  project(a).VALORE.rikiApp.CATENE=[
+    {BYTE:"w",DOMAIN:"input",VALORE:{kind:"calc",trigger:"input",inputs:["length","kgm","qty"],output:"weight",expr:"length*kgm*qty",suffix:" kg",round:1}},
+    {BYTE:"c",DOMAIN:"input",VALORE:{kind:"calc",trigger:"input",inputs:["length","kgm","qty","price"],output:"cost",expr:"length*kgm*qty*price",prefix:"€ ",round:2}}
+  ];
+
+  const b=makeProject("project dashboard","Operational project dashboard");
+  project(b).VALORE.rikiApp.VALORE={
+    title:"Workshop dashboard",canvas:{background:"#fff",color:"#111",maxWidth:1180,padding:24,gap:18},
+    nodes:[
+      {BYTE:"head",VALORE:{tag:"header",style:{display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #ddd",paddingBottom:"16px"},children:["brand","badge"]}},
+      {BYTE:"brand",VALORE:{tag:"h1",text:"Workshop",style:{fontSize:"28px",margin:"0"}}},
+      {BYTE:"badge",VALORE:{tag:"span",text:"8 active",style:{background:"#111",color:"#fff",padding:"8px 12px",borderRadius:"999px"}}},
+      {BYTE:"metrics",VALORE:{tag:"section",style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"12px"},children:["m1","m2","m3"]}},
+      {BYTE:"m1",VALORE:{tag:"article",text:"Active projects — 8",style:{border:"1px solid #ddd",padding:"18px",borderRadius:"12px",fontSize:"26px",fontWeight:"700"}}},
+      {BYTE:"m2",VALORE:{tag:"article",text:"Late — 2",style:{border:"1px solid #ddd",padding:"18px",borderRadius:"12px",fontSize:"26px",fontWeight:"700"}}},
+      {BYTE:"m3",VALORE:{tag:"article",text:"Planned hours — 426",style:{border:"1px solid #ddd",padding:"18px",borderRadius:"12px",fontSize:"26px",fontWeight:"700"}}},
+      {BYTE:"table",VALORE:{tag:"div",text:"Warehouse A — fabrication — 72%   ·   Stair tower — assembly — 48%",style:{border:"1px solid #ddd",borderRadius:"12px",padding:"18px",lineHeight:"1.8"}}}
+    ]};
+
+  const c=makeProject("service landing","Public-facing fabrication landing page");
+  project(c).VALORE.rikiApp.VALORE={
+    title:"Steel fabrication",canvas:{background:"#0b0b0b",color:"#fff",maxWidth:1180,padding:28,gap:24},
+    nodes:[
+      {BYTE:"hero",VALORE:{tag:"section",style:{minHeight:"58vh",display:"flex",flexDirection:"column",justifyContent:"center"},children:["h","p","cta"]}},
+      {BYTE:"h",VALORE:{tag:"h1",text:"Steel fabrication, from drawing to site",style:{fontSize:"clamp(44px,7vw,86px)",lineHeight:".95",margin:"0 0 22px"}}},
+      {BYTE:"p",VALORE:{tag:"p",text:"Structures, stairs, canopies and custom metalwork.",style:{fontSize:"20px",color:"#bbb"}}},
+      {BYTE:"cta",VALORE:{tag:"button",text:"Request a quote",style:{width:"fit-content",padding:"14px 18px",borderRadius:"999px",border:"0",background:"#fff",color:"#111"}}},
+      {BYTE:"services",VALORE:{tag:"section",style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"14px"},children:["s1","s2","s3"]}},
+      {BYTE:"s1",VALORE:{tag:"article",text:"Structures",style:{minHeight:"180px",border:"1px solid #333",padding:"24px",fontSize:"26px"}}},
+      {BYTE:"s2",VALORE:{tag:"article",text:"Stairs",style:{minHeight:"180px",border:"1px solid #333",padding:"24px",fontSize:"26px"}}},
+      {BYTE:"s3",VALORE:{tag:"article",text:"Canopies",style:{minHeight:"180px",border:"1px solid #333",padding:"24px",fontSize:"26px"}}}
+    ]};
+}
+seed();
+for(const p of Object.values(RIKI.VALORE.projects)){
+  p.VALORE.history ||= [];
+  normalizeApp(p.VALORE.rikiApp);
+  validateRikiApp(p.VALORE.rikiApp,{derive:true});
+  p.BIT=p.VALORE.rikiApp.BIT;
+}
+validateSpace(RIKI);
+
+
+function renderPublic(){
+  const entries=Object.entries(RIKI.VALORE.projects).filter(([,p])=>!p.VALORE.archived);
+  $("#publicGrid").innerHTML=`<div class="grid">${entries.map(([id,p])=>`<button class="card" data-p="${id}"><h2>${esc(p.BYTE.name)}</h2><p>${esc(p.VALORE.description)}</p><small>RIKI</small></button>`).join("")}</div>`;
+  document.querySelectorAll("[data-p]").forEach(x=>x.onclick=()=>openPublic(x.dataset.p));
+}
+function openPublic(id){const p=project(id);$("#viewerTitle").textContent=p.BYTE.name;$("#viewerFrame").srcdoc=appToHTML(p.VALORE);$("#viewer").classList.add("open")}
+$("#closeViewer").onclick=()=>{$("#viewer").classList.remove("open");$("#viewerFrame").srcdoc=""}
+
+function openMenu(){
+  $("#sidebar").classList.add("open");
+}
+function closeMenu(){
+  $("#sidebar").classList.remove("open","sub-open");
+}
+function syncSideMenu(){
+  const v=RIKI.VALORE,p=v.currentProject?project(v.currentProject):null;
+  $("#navProject").classList.toggle("hidden",!p);
+  $("#projectMenuTitle").textContent=p?p.BYTE.name:"project";
+  document.querySelectorAll("[data-side-tab]").forEach(b=>b.classList.toggle("active",!!p&&b.dataset.sideTab===p.VALORE.ui.tab));
+}
+
+function renderAdmin(){
+  const v=RIKI.VALORE;
+  $("#navProjects").classList.toggle("active",v.currentView==="projects");
+  $("#navSettings").classList.toggle("active",v.currentView==="settings");
+  syncSideMenu();
+  if(v.currentView==="settings")return renderSettings();
+  if(v.currentProject)return renderProject(v.currentProject);
+  renderProjects();
+}
+function renderProjects(){
+  $("#title").textContent="projects";$("#actions").innerHTML=`<button class="btn primary" id="new">new project</button>`;
+  $("#content").innerHTML=`<section class="projects"><h1>projects</h1><div class="grid">${Object.entries(RIKI.VALORE.projects).filter(([,p])=>!p.VALORE.archived).map(([id,p])=>`<button class="card" data-open="${id}"><h2>${esc(p.BYTE.name)}</h2><p>${esc(p.VALORE.description)}</p></button>`).join("")}</div></section>`;
+  document.querySelectorAll("[data-open]").forEach(x=>x.onclick=()=>{RIKI.VALORE.currentProject=x.dataset.open;ensureHistory(project(x.dataset.open));closeMenu();renderAdmin()});
+  $("#new").onclick=()=>{
+    $("#newProjectName").value="";
+    $("#newProjectModal").classList.remove("hidden");
+    setTimeout(()=>$("#newProjectName").focus(),0);
+  }
+}
+function renderSettings(){
+  $("#title").textContent="settings";$("#actions").innerHTML="";
+  const s=RIKI.VALORE.settings;
+  const provider=s.provider||"demo";
+  $("#content").innerHTML=`<section class="settings"><h1>settings</h1>
+  <div class="group">
+    <div class="field"><label>provider</label><select id="provider">
+      <option value="demo" ${provider==="demo"?"selected":""}>DEMO — free local test</option>
+      <option value="openai" ${provider==="openai"?"selected":""}>OpenAI API</option>
+      <option value="openrouter" ${provider==="openrouter"?"selected":""}>OpenRouter</option>
+    </select></div>
+    <div id="demoFields" ${provider!=="demo"?'style="display:none"':""}>
+      <p class="status">No network, no API key, no cost. DEMO exercises the full RIKI transform → validation → preview → history → publish pipeline.</p>
+    </div>
+    <div id="openaiFields" ${provider!=="openai"?'style="display:none"':""}>
+      <div class="field"><label>OpenAI API key — session only</label><input id="openaiKey" type="password" autocomplete="off" value="${esc(SESSION_SECRETS.openaiKey)}"></div>
+      <div class="field"><label>OpenAI model</label><input id="openaiModel" value="${esc(s.openaiModel||"gpt-5.6-luna")}"></div>
+      <p class="status">The key stays only in this browser tab and is never written into RIKI Space or backups.</p>
+    </div>
+    <div id="openrouterFields" ${provider!=="openrouter"?'style="display:none"':""}>
+      <div class="field"><label>OpenRouter API key — session only</label><input id="openrouterKey" type="password" autocomplete="off" value="${esc(SESSION_SECRETS.openrouterKey)}"></div>
+      <div class="field"><label>OpenRouter model</label><input id="openrouterModel" value="${esc(s.openrouterModel||"openai/gpt-5.6-luna")}"></div>
+      <div class="field"><label>site URL (optional)</label><input id="siteUrl" value="${esc(s.siteUrl||"")}"></div>
+      <div class="field"><label>app name (optional)</label><input id="appName" value="${esc(s.appName||"RIKI Space")}"></div>
+    </div>
+    <button class="btn primary" id="saveSettings">save</button> <button class="btn" id="runTorture">run torture tests</button><div id="tortureResult" class="status" style="margin-top:10px"></div>
+  </div>
+  <div class="group">
+    <h3 style="margin-top:0">backup</h3>
+    <p style="color:var(--muted)">Optional copy of the current canonical RIKI Space. Not required for normal operation.</p>
+    <div class="row"><button class="btn" id="backupSpace">export backup</button><button class="btn" id="importSpace">import backup</button><input id="importSpaceFile" type="file" accept=".riki,.json,application/json" hidden></div>
+    <p class="status">API keys are session-only and excluded from the canonical Space and backups.</p>
+  </div>
+  </section>`;
+  const syncProviderFields=()=>{
+    const v=$("#provider").value;
+    $("#demoFields").style.display=v==="demo"?"":"none";
+    $("#openaiFields").style.display=v==="openai"?"":"none";
+    $("#openrouterFields").style.display=v==="openrouter"?"":"none";
+  };
+  $("#provider").onchange=syncProviderFields;
+  $("#runTorture").onclick=()=>{const r=runTortureTests();$("#tortureResult").textContent=`${r.ok?"PASS":"FAIL"} — ${r.passed}/${r.total}`+(r.ok?"":" — "+r.results.filter(x=>!x.ok).map(x=>x.name+": "+x.detail).join(" | "));};
+  $("#saveSettings").onclick=()=>{
+    s.provider=$("#provider").value;
+    SESSION_SECRETS.openaiKey=$("#openaiKey")?.value.trim()||SESSION_SECRETS.openaiKey;
+    SESSION_SECRETS.openrouterKey=$("#openrouterKey")?.value.trim()||SESSION_SECRETS.openrouterKey;
+    s.openaiModel=$("#openaiModel")?.value.trim()||s.openaiModel||"gpt-5.6-luna";
+    s.openrouterModel=$("#openrouterModel")?.value.trim()||s.openrouterModel||"openai/gpt-5.6-luna";
+    s.siteUrl=$("#siteUrl")?.value.trim()||s.siteUrl||"";
+    s.appName=$("#appName")?.value.trim()||s.appName||"RIKI Space";
+    commit("settings",null,"provider="+s.provider);
+    renderSettings();
+  };
+  $("#backupSpace").onclick=saveSpaceFile;
+  $("#importSpace").onclick=()=>$("#importSpaceFile").click();
+  $("#importSpaceFile").onchange=async e=>{
+    const f=e.target.files?.[0]; if(!f)return;
+    try{importSpaceObject(JSON.parse(await f.text())); alert("RIKI Space imported")}
+    catch(err){alert("Import error:\n"+err.message)}
+    finally{e.target.value=""}
+  };
+}
+function renderProject(id){
+  const p=project(id),tab=p.VALORE.ui.tab;
+  $("#title").textContent=p.BYTE.name;$("#actions").innerHTML=`<button class="btn" id="archive">${p.VALORE.archived?"unarchive":"archive"}</button>`;
+  let body="";
+  if(tab==="chat"){
+    body=`<div class="view"><div class="chat"><div class="messages">${p.VALORE.messages.map(m=>`<div class="msg ${m.role==="user"?"user":""}">${esc(m.content)}</div>`).join("")||"<div class='msg'>Ask RIKI to modify this project.</div>"}</div>
+    <div class="composer"><textarea id="prompt" placeholder="Message RIKI..."></textarea><div class="row"><span class="status" id="status">ready</span><button class="btn primary" id="send">send</button></div></div></div></div>`;
+  }else if(tab==="preview"){
+    body=`<div class="view preview"><div class="previewbar"><span>preview</span></div><iframe id="preview"></iframe></div>`;
+  }else if(tab==="code"){
+    const mode=p.VALORE.ui.codeMode;
+    const src=mode==="html"?appToHTML(p.VALORE):JSON.stringify(p.VALORE.rikiApp,null,2);
+    body=`<div class="view code"><div class="codebar"><div><button class="btn ${mode==="riki"?"primary":""}" data-mode="riki">riki</button> <button class="btn ${mode==="html"?"primary":""}" data-mode="html">html</button></div>${mode==="riki"?'<button class="btn primary" id="saveCode">save</button>':'<span class="status">read only</span>'}</div><textarea id="editor" ${mode==="html"?"readonly":""}>${esc(src)}</textarea></div>`;
+  }else if(tab==="history"){
+    ensureHistory(p);
+    const history=p.VALORE.history||[];
+    body=`<div class="view" style="padding:18px;overflow:auto;max-width:900px;margin:auto;width:100%">
+      <div class="status" style="margin-bottom:12px">Audit only — history is not a CATENA and does not create a parallel canonical state.</div>
+      ${history.length?history.slice().reverse().map(x=>`<div style="border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px">
+        <div><strong>${esc(x.source||"change")}</strong><div class="status">${new Date(x.t).toLocaleString()} · changed BYTE: ${esc((x.changed||[]).join(", ")||"none")}</div></div>
+      </div>`).join(""):`<div class="status">no value changes yet</div>`}
+    </div>`;
+  }else{
+    body=`<div class="view" style="padding:18px"><button class="btn primary" id="export">export html</button></div>`;
+  }
+  const projectTabs=["chat","preview","code","history","publish"];
+  $("#content").innerHTML=`<section class="project"><div class="tabs">${projectTabs.map(t=>`<button data-tab="${t}" class="${t===tab?"active":""}">${t}</button>`).join("")}</div>${body}</section>`;
+  document.querySelectorAll("[data-tab]").forEach(x=>x.onclick=()=>{p.VALORE.ui.tab=x.dataset.tab;syncSideMenu();renderProject(id)});
+  $("#archive").onclick=()=>{p.VALORE.archived=!p.VALORE.archived;commit(p.VALORE.archived?"project_archive":"project_unarchive",id);RIKI.VALORE.currentProject=null;renderAdmin();renderPublic()};
+  if(tab==="preview")$("#preview").srcdoc=appToHTML(p.VALORE);
+  if(tab==="code"){
+    document.querySelectorAll("[data-mode]").forEach(x=>x.onclick=()=>{p.VALORE.ui.codeMode=x.dataset.mode;renderProject(id)});
+    if(p.VALORE.ui.codeMode==="riki")$("#saveCode").onclick=()=>{
+      try{
+        const x=JSON.parse($("#editor").value); normalizeApp(x);
+        const perm=validatePermanentMutation(p.VALORE.rikiApp,x);
+        if(!perm.ok) throw Error(perm.errors.join("\n"));
+        const check=validateRikiApp(x,{derive:true});
+        if(!check.ok) throw Error(check.errors.join("\n"));
+        recordHistory(p,x,"code"); commit("code_save_validated",id);
+        renderProject(id);renderPublic()
+      }catch(e){alert("RIKI validation error:\n"+e.message)}
+    };
+  }
+  if(tab==="publish")$("#export").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([appToHTML(p.VALORE)],{type:"text/html"}));a.download=p.BYTE.name.replace(/\W+/g,"-")+".html";a.click()};
+  if(tab==="chat"){
+    $("#send").onclick=()=>sendPrompt(id);
+    $("#prompt").addEventListener("keydown",e=>{
+      if((e.ctrlKey||e.metaKey) && e.key==="Enter"){
+        e.preventDefault();
+        sendPrompt(id);
+      }
+    });
+  }
+}
+function rikiSystemPrompt(current){
+  return `You are the RIKI application composer for RIKI CORE 0.0.1 Alpha.
+
+Canonical rules are mandatory:
+- BYTE is one unique permanent canonical identity. Once declared it can never be deleted, renamed, replaced or duplicated.
+- VALORE is the permanent dynamic value of the same BYTE. Change the VALORE; never recreate the BYTE.
+- CATENE are permanent mathematical equalities with a defined non-empty domain. Once declared they can never be edited or deleted.
+- BIT is DERIVED by the runtime from the connected CATENE. You must never author, set, force or patch BIT.
+- Never create snapshots, parallel canonical states or hidden duplicate state.
+
+You MUST NOT output HTML or JavaScript and MUST NOT return the whole application.
+Return ONLY one strict compact JSON object:
+{"reply":"short response","ops":[...]}
+
+Allowed operations only:
+1. {"op":"setTitle","value":"Title"}
+2. {"op":"setCanvas","value":{"background":"#fff","color":"#111","maxWidth":1200,"padding":24,"gap":16}}
+3. {"op":"declareByte","node":{"BYTE":"unique_name","VALORE":{"tag":"div","text":"text","value":"optional","attrs":{},"style":{},"children":[]}}}
+4. {"op":"setValue","BYTE":"existing_BYTE","value":{"text":"new text","style":{"fontSize":"42px"},"children":["BYTE"]}}
+5. {"op":"declareChain","chain":{"BYTE":"chain_name","DOMAIN":"input","VALORE":{"kind":"calc","inputs":["a","b"],"output":"result","expr":"a+b","property":"text","prefix":"","suffix":"","round":2}}}
+
+Forbidden: delete, replace, rename, setAppBYTE, updateChain, deleteChain, manual BIT, snapshots, recreation of an existing BYTE.
+For a new project, declare enough BYTEs to build a useful interface. Preserve every existing BYTE and CHAIN forever. Parent/child hierarchy is a dynamic VALORE and may change with setValue. Use only calc equality chains for canonical behavior. Strict JSON only, no markdown fences.
+
+Current canonical RIKI app:
+${JSON.stringify(current)}`;
+}
+
+function parseTransformRaw(raw){
+  raw=String(raw||"").trim();
+  if(!raw) throw new Error("empty response from model");
+  raw=raw.replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"").trim();
+  try{return JSON.parse(raw)}catch{}
+  const a=raw.indexOf("{"), b=raw.lastIndexOf("}");
+  if(a<0||b<=a) throw new Error("model did not return RIKI transform JSON");
+  try{return JSON.parse(raw.slice(a,b+1))}catch(e){throw new Error("invalid transform JSON: "+e.message)}
+}
+
+function demoTransform(current,text){
+  const q=String(text||"").trim();
+  const low=q.toLowerCase();
+  const existing=new Set((current.nodes||[]).map(n=>n.BYTE));
+  const ops=[];
+  const safeBase=x=>String(x||"NODE").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Z0-9_]+/g,"_").replace(/^([^A-Z_])/,"_$1").replace(/^_+|_+$/g,"").slice(0,40)||"NODE";
+  const unique=base=>{let n=safeBase(base),i=2;while(existing.has(n)){n=safeBase(base)+"_"+(i++)}existing.add(n);return n};
+
+  if(/titolo|title/.test(low)){
+    const m=q.match(/(?:titolo|title)(?:\s+(?:in|to|a))?\s*["“]?([^"”\n]+)["”]?/i);
+    ops.push({op:"setTitle",value:(m?.[1]||q.replace(/.*(?:titolo|title)/i,"").trim()||"RIKI App").slice(0,120)});
+  }
+  if(/sfondo|background/.test(low)){
+    const color=(q.match(/#[0-9a-f]{3,8}\b/i)||q.match(/\b(?:white|black|gray|grey|red|green|blue|yellow|orange|purple|pink)\b/i)||[])[0]||"#f6f6f6";
+    ops.push({op:"setCanvas",value:{...(current.canvas||{}),background:color}});
+  }
+  if(/landing|pagina|page|sito|site|hero|pulsante|button|testo|text|crea|create|aggiungi|add/.test(low)){
+    const root=(current.nodes||[]).find(n=>Array.isArray(n?.VALORE?.children)&&n.BYTE==="ROOT") || (current.nodes||[]).find(n=>Array.isArray(n?.VALORE?.children));
+    if(!root){
+      const rid=unique("ROOT");
+      ops.push({op:"declareByte",node:{BYTE:rid,VALORE:{tag:"main",text:"",attrs:{},style:{maxWidth:"960px",margin:"0 auto",padding:"48px 24px"},children:[]}}});
+    }
+    const heading=unique("DEMO_HEADING");
+    const para=unique("DEMO_TEXT");
+    const button=unique("DEMO_BUTTON");
+    ops.push({op:"declareByte",node:{BYTE:heading,VALORE:{tag:"h1",text:"RIKI demo is working",attrs:{},style:{fontSize:"48px",margin:"0 0 16px"},children:[]}}});
+    ops.push({op:"declareByte",node:{BYTE:para,VALORE:{tag:"p",text:q||"Local deterministic DEMO transform.",attrs:{},style:{fontSize:"18px",lineHeight:"1.5"},children:[]}}});
+    ops.push({op:"declareByte",node:{BYTE:button,VALORE:{tag:"button",text:"RIKI",attrs:{type:"button"},style:{padding:"10px 16px",border:"1px solid #111",background:"#fff",color:"#111"},children:[]}}});
+    const target=root?.BYTE||"ROOT";
+    if(existing.has(target) || (current.nodes||[]).some(n=>n.BYTE===target)){
+      const old=(current.nodes||[]).find(n=>n.BYTE===target)?.VALORE||{};
+      ops.push({op:"setValue",BYTE:target,value:{...old,children:[...(old.children||[]),heading,para,button]}});
+    }
+  }
+  if(!ops.length){
+    const node=(current.nodes||[]).find(n=>n.BYTE && n.BYTE!=="ROOT");
+    if(node) ops.push({op:"setValue",BYTE:node.BYTE,value:{...node.VALORE,text:q}});
+    else{
+      const id=unique("DEMO_TEXT");
+      ops.push({op:"declareByte",node:{BYTE:id,VALORE:{tag:"p",text:q,attrs:{},style:{},children:[]}}});
+    }
+  }
+  return {reply:"DEMO applied locally — no API call and no cost.",ops};
+}
+
+async function callOpenRouter(system,text,s){
+  if(!SESSION_SECRETS.openrouterKey) throw new Error("set OpenRouter API key in settings");
+  if(!s.openrouterModel) throw new Error("set an OpenRouter model in settings");
+  const headers={"Authorization":"Bearer "+SESSION_SECRETS.openrouterKey,"Content-Type":"application/json"};
+  if(s.siteUrl) headers["HTTP-Referer"]=s.siteUrl;
+  if(s.appName) headers["X-Title"]=s.appName;
+  const r=await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers,body:JSON.stringify({model:s.openrouterModel,messages:[{role:"system",content:system},{role:"user",content:text}],temperature:0.08,max_tokens:12000})});
+  const responseText=await r.text();
+  let envelope; try{envelope=JSON.parse(responseText)}catch{throw new Error("OpenRouter returned an unreadable response")}
+  if(!r.ok) throw new Error(envelope?.error?.message||`OpenRouter HTTP ${r.status}`);
+  let raw=envelope?.choices?.[0]?.message?.content;
+  if(Array.isArray(raw)) raw=raw.map(x=>x?.text||x?.content||"").join("");
+  return parseTransformRaw(raw);
+}
+
+async function callOpenAI(system,text,s){
+  if(!SESSION_SECRETS.openaiKey) throw new Error("set OpenAI API key in settings");
+  if(!s.openaiModel) throw new Error("set an OpenAI model in settings");
+  const r=await fetch("https://api.openai.com/v1/responses",{
+    method:"POST",
+    headers:{"Authorization":"Bearer "+SESSION_SECRETS.openaiKey,"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:s.openaiModel,
+      input:[
+        {role:"system",content:[{type:"input_text",text:system}]},
+        {role:"user",content:[{type:"input_text",text:text}]}
+      ],
+      text:{format:{type:"json_object"}},
+      max_output_tokens:12000
+    })
+  });
+  const responseText=await r.text();
+  let envelope; try{envelope=JSON.parse(responseText)}catch{throw new Error("OpenAI returned an unreadable response")}
+  if(!r.ok) throw new Error(envelope?.error?.message||`OpenAI HTTP ${r.status}`);
+  const raw=(envelope.output||[]).flatMap(o=>o?.content||[]).filter(c=>c?.type==="output_text").map(c=>c.text||"").join("").trim();
+  return parseTransformRaw(raw);
+}
+
+async function sendPrompt(id){
+  const p=project(id);
+  const input=$("#prompt");
+  const text=input?.value.trim();
+  if(!text)return;
+  const s=RIKI.VALORE.settings;
+  const provider=s.provider||"demo";
+  const status=$("#status");
+  const send=$("#send");
+
+  p.VALORE.messages.push({role:"user",content:text});
+  input.value="";
+  status.textContent=provider==="demo"?"testing locally…":"thinking…";
+  send.disabled=true;
+  const current=p.VALORE.rikiApp;
+  const system=rikiSystemPrompt(current);
+
+  try{
+    let out;
+    if(provider==="demo") out=demoTransform(current,text);
+    else if(provider==="openai") out=await callOpenAI(system,text,s);
+    else if(provider==="openrouter") out=await callOpenRouter(system,text,s);
+    else throw new Error("unknown provider: "+provider);
+
+    if(!Array.isArray(out.ops)) throw new Error("RIKI transform has no ops array");
+    if(out.ops.length===0) throw new Error("model returned no RIKI operations");
+    const candidate=applyRikiTransform(current,out.ops);
+    const check=validateRikiApp(candidate);
+    if(!check.ok) throw new Error("RIKI validation failed: "+check.errors.join(" · "));
+    recordHistory(p,candidate,provider);
+    p.VALORE.messages.push({role:"ai",content:out.reply||"updated"});
+    renderProject(id); renderPublic();
+  }catch(e){
+    p.VALORE.messages.push({role:"ai",content:"Error: "+e.message});
+    renderProject(id);
+  }finally{
+    const b=$("#send"); if(b)b.disabled=false;
+    const st=$("#status"); if(st)st.textContent="ready";
+  }
+}
+
+
+function runTortureTests(){
+  const results=[];
+  const t=(name,fn)=>{try{const v=fn();results.push({name,ok:v!==false,detail:v===false?"returned false":""})}catch(e){results.push({name,ok:false,detail:e.message})}};
+  t("safeCalc arithmetic",()=>safeCalc("a*b+2",{a:3,b:4})===14);
+  t("safeCalc blocks global access",()=>{try{safeCalc("window.alert(1)",{window:1});return false}catch{return true}});
+  t("duplicate BYTE rejected",()=>{const a={BYTE:"APP",VALORE:{nodes:[{BYTE:"A",VALORE:{}},{BYTE:"A",VALORE:{}}],canvas:{}},CATENE:[],BIT:0};return !validateRikiApp(a).ok});
+  t("permanent BYTE deletion rejected",()=>{const a={BYTE:"APP",VALORE:{nodes:[{BYTE:"A",VALORE:{text:"1"}}],canvas:{}},CATENE:[],BIT:0};const b=cloneJSON(a);b.VALORE.nodes=[];return !validatePermanentMutation(a,b).ok});
+  t("permanent CHAIN edit rejected",()=>{const a={BYTE:"APP",VALORE:{nodes:[{BYTE:"A",VALORE:{value:1}},{BYTE:"B",VALORE:{value:0}}],canvas:{}},CATENE:[{BYTE:"C",DOMAIN:"d",VALORE:{kind:"calc",inputs:["A"],output:"B",expr:"A"}}],BIT:0};const b=cloneJSON(a);b.CATENE[0].VALORE.expr="A+1";return !validatePermanentMutation(a,b).ok});
+  t("BIT derived to 1",()=>{const a={BYTE:"APP",VALORE:{nodes:[{BYTE:"A",VALORE:{value:2}},{BYTE:"B",VALORE:{value:3}},{BYTE:"C",VALORE:{value:0}}],canvas:{}},CATENE:[{BYTE:"SUM",DOMAIN:"d",VALORE:{kind:"calc",inputs:["A","B"],output:"C",expr:"A+B",property:"value"}}],BIT:0};validateRikiApp(a);return a.BIT===1&&numericNodeValue(nodeMap(a).get("C"))===5});
+  t("simultaneous chain order independence",()=>{const mk=order=>{const cs=[{BYTE:"C1",DOMAIN:"d",VALORE:{kind:"calc",inputs:["A"],output:"B",expr:"A+1",property:"value"}},{BYTE:"C2",DOMAIN:"d",VALORE:{kind:"calc",inputs:["B"],output:"C",expr:"B+1",property:"value"}}];const a={BYTE:"APP",VALORE:{nodes:[{BYTE:"A",VALORE:{value:1}},{BYTE:"B",VALORE:{value:0}},{BYTE:"C",VALORE:{value:0}}],canvas:{}},CATENE:order?cs:cs.reverse(),BIT:0};validateRikiApp(a);return [numericNodeValue(nodeMap(a).get("B")),numericNodeValue(nodeMap(a).get("C")),a.BIT]};return JSON.stringify(mk(true))===JSON.stringify(mk(false))&&mk(true)[1]===3});
+  t("conflicting chains keep BIT 0",()=>{const a={BYTE:"APP",VALORE:{nodes:[{BYTE:"A",VALORE:{value:1}},{BYTE:"B",VALORE:{value:0}}],canvas:{}},CATENE:[{BYTE:"C1",DOMAIN:"d",VALORE:{kind:"calc",inputs:["A"],output:"B",expr:"A+1",property:"value"}},{BYTE:"C2",DOMAIN:"d",VALORE:{kind:"calc",inputs:["A"],output:"B",expr:"A+2",property:"value"}}],BIT:0};validateRikiApp(a);return a.BIT===0});
+  t("unsupported delete op blocked",()=>{const a={BYTE:"APP",VALORE:{nodes:[{BYTE:"A",VALORE:{text:"x"}}],canvas:{}},CATENE:[],BIT:0};try{applyRikiTransform(a,[{op:"deleteByte",BYTE:"A"}]);return false}catch{return true}});
+  t("generated HTML blocks script tag",()=>{const p={rikiApp:{BYTE:"APP",VALORE:{title:"x",canvas:{},nodes:[{BYTE:"X",VALORE:{tag:"script",text:"alert(1)",attrs:{}}}]},CATENE:[],BIT:0}};const h=appToHTML(p);return !/<script data-riki-byte="X"/i.test(h)&&/<div data-riki-byte="X"/i.test(h)});
+  t("generated HTML blocks event attrs",()=>{const p={rikiApp:{BYTE:"APP",VALORE:{title:"x",canvas:{},nodes:[{BYTE:"X",VALORE:{tag:"button",text:"x",attrs:{onclick:"alert(1)",type:"button"}}}]},CATENE:[],BIT:0}};const h=appToHTML(p);return !/onclick=/i.test(h)&&/type="button"/i.test(h)});
+  t("generated HTML blocks javascript href",()=>{const p={rikiApp:{BYTE:"APP",VALORE:{title:"x",canvas:{},nodes:[{BYTE:"X",VALORE:{tag:"a",text:"x",attrs:{href:"javascript:alert(1)"}}}]},CATENE:[],BIT:0}};const h=appToHTML(p);return !/javascript:/i.test(h)&&/href="#"/i.test(h)});
+  t("generated HTML blocks CSS url",()=>{const p={rikiApp:{BYTE:"APP",VALORE:{title:"x",canvas:{},nodes:[{BYTE:"X",VALORE:{tag:"div",text:"x",style:{background:"url(https://evil.test/x)"}}}]},CATENE:[],BIT:0}};const h=appToHTML(p);return !/evil\.test/i.test(h)});
+  t("DEMO emits valid transform",()=>{const p=Object.values(RIKI.VALORE.projects)[0];const o=demoTransform(p.VALORE.rikiApp.VALORE,"aggiungi testo di prova");const n=applyRikiTransform(p.VALORE.rikiApp,o.ops);return validateRikiApp(n).ok});
+  t("backup excludes API keys",()=>{SESSION_SECRETS.openaiKey="SECRET_TEST";SESSION_SECRETS.openrouterKey="SECRET_ROUTER";const x=JSON.stringify(exportSpaceObject());SESSION_SECRETS.openaiKey="";SESSION_SECRETS.openrouterKey="";return !x.includes("SECRET_TEST")&&!x.includes("SECRET_ROUTER")});
+  const ok=results.every(r=>r.ok);
+  return {ok,passed:results.filter(r=>r.ok).length,total:results.length,results};
+}
+
+$("#adminBtn").onclick=()=>{$("#admin").classList.remove("hidden");RIKI.VALORE.currentView="projects";RIKI.VALORE.currentProject=null;closeMenu();renderAdmin()};
+$("#navProjects").onclick=()=>{RIKI.VALORE.currentView="projects";RIKI.VALORE.currentProject=null;closeMenu();renderAdmin()};
+$("#cancelNewProject").onclick=()=>$("#newProjectModal").classList.add("hidden");
+function createProjectFromModal(){
+  const name=$("#newProjectName").value.trim(); if(!name)return;
+  const id=makeProject(name,"");
+  $("#newProjectModal").classList.add("hidden");
+  RIKI.VALORE.currentView="projects"; RIKI.VALORE.currentProject=id;
+  renderAdmin(); renderPublic();
+}
+$("#confirmNewProject").onclick=createProjectFromModal;
+$("#newProjectName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();createProjectFromModal()}});
+$("#navSettings").onclick=()=>{RIKI.VALORE.currentView="settings";RIKI.VALORE.currentProject=null;closeMenu();renderAdmin()};
+$("#navProject").onclick=()=>{ if(!$("#sidebar").classList.contains("open")) openMenu(true); else $("#sidebar").classList.add("sub-open"); };
+$("#projectMenuBack").onclick=()=>$("#sidebar").classList.remove("sub-open");
+document.querySelectorAll("[data-side-tab]").forEach(b=>b.onclick=()=>{
+  const id=RIKI.VALORE.currentProject;if(!id)return;
+  project(id).VALORE.ui.tab=b.dataset.sideTab;closeMenu();renderProject(id);
+});
+$("#navSite").onclick=()=>{closeMenu();$("#admin").classList.add("hidden");renderPublic()};
+$("#menuClose").onclick=()=>$("#sidebar").classList.contains("open")?closeMenu():openMenu();
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMenu()});
+renderPublic();
+</script>
+</body>
+</html>
